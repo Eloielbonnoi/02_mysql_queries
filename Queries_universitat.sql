@@ -30,7 +30,17 @@ JOIN profesor pr
 ON p.id = pr.id_profesor
 JOIN departamento d
 ON pr.id_departamento = d.id
--- 7 Retorna un llistat amb el nom de les assignatures, any d'inici i any de fi del curs escolar de l'alumne amb nif 26902806M. PENDENT CORRECCIÓ
+-- 7 Retorna un llistat amb el nom de les assignatures, any d'inici i any de fi del curs escolar de l'alumne amb nif 26902806M.
+SELECT a.nombre, ce.anyo_inicio, ce.anyo_fin
+FROM alumno_se_matricula_asignatura asm
+JOIN asignatura a
+ON asm.id_asignatura = a.id
+AND asm.id_alumno = (SELECT id
+					FROM persona 
+					WHERE persona.nif = '26902806M')
+JOIN curso_escolar ce
+ON ce.id = asm.id_curso_escolar
+
 -- 8 Retorna un llistat amb el nom de tots els departaments que tenen professors que imparteixen alguna assignatura en el Grau en Enginyeria Informàtica (Pla 2015).
 /*
 (SELECT DISTINCT id_profesor FROM asignatura WHERE id_grado =
@@ -42,25 +52,43 @@ SELECT * FROM profesor JOIN departamento d ON d.id = p.id_departamento AND p.id_
               */
 -- Tot junt. El problema és que la subquery retorna més d'una fila i això no pot ser
 
-SELECT *
+SELECT d.nombre
 FROM profesor p
 JOIN departamento d
 ON d.id = p.id_departamento 
-AND p.id_profesor = 
+AND p.id_profesor IN 
 		(SELECT DISTINCT id_profesor
 		FROM asignatura
-		WHERE id_grado =
-					(
-					SELECT id
+		WHERE id_grado IN
+					(SELECT id
 					FROM grado
 					WHERE nombre = 'Grado en Ingeniería Informática (Plan 2015)'
 					AND nombre IS NOT NULL))
 
 -- 9 Retorna un llistat amb tots els alumnes que s'han matriculat en alguna assignatura durant el curs escolar 2018/2019.
+SELECT p.nombre, p.apellido1, p.apellido2
+FROM persona p
+WHERE p.id IN (SELECT DISTINCT asm.id_alumno
+FROM alumno_se_matricula_asignatura asm
+WHERE asm.id_curso_escolar = 
+					(SELECT id
+					FROM curso_escolar ce
+					WHERE ce.anyo_inicio = '2018'))
 
 --Resolgui les 6 següents consultes utilitzant les clàusules LEFT JOIN i RIGHT JOIN.
 
--- 1 Retorna un llistat amb els noms de tots els professors i els departaments que tenen vinculats. El llistat també ha de mostrar aquells professors que no tenen cap departament associat. El llistat ha de retornar quatre columnes, nom del departament, primer cognom, segon cognom i nom del professor. El resultat estarà ordenat alfabèticament de menor a major pel nom del departament, cognoms i el nom.
+-- 1 Retorna un llistat amb els noms de tots els professors i els departaments que tenen vinculats. 
+	--El llistat també ha de mostrar aquells professors que no tenen cap departament associat. 
+	--El llistat ha de retornar quatre columnes, nom del departament, primer cognom, segon cognom i nom del professor. 
+	--El resultat estarà ordenat alfabèticament de menor a major pel nom del departament, cognoms i el nom.
+SELECT de.nombre, pe.apellido1, pe.apellido2, pe.nombre
+FROM departamento de
+LEFT JOIN profesor pr
+ON de.id = pr.id_departamento
+RIGHT JOIN persona pe
+ON pr.id_profesor = pe.id
+ORDER BY de.nombre IS NULL, de.nombre ASC, pe.apellido1, pe.apellido2, pe.nombre
+
 -- 2 Retorna un llistat amb els professors que no estan associats a un departament.
 -- 3 Retorna un llistat amb els departaments que no tenen professors associats.
 -- 4 Retorna un llistat amb els professors que no imparteixen cap assignatura.
