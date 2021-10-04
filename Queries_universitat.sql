@@ -4,6 +4,7 @@ USE universidad;
 SELECT apellido1, apellido2, nombre
 FROM persona
 WHERE tipo = 'alumno'
+
 -- 2 Esbrina el nom i els dos cognoms dels alumnes que no han donat d'alta el seu número de telèfon en la base de dades.
 SELECT nombre, apellido1, apellido2
 FROM persona
