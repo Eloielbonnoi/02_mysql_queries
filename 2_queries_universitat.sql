@@ -1,0 +1,24 @@
+USE universidad;
+SELECT apellido1, apellido2, nombre FROM persona WHERE tipo = 'alumno';
+SELECT nombre, apellido1, apellido2 FROM persona WHERE tipo = 'alumno' AND telefono IS NULL;
+SELECT * FROM persona WHERE tipo = 'alumno' AND fecha_nacimiento BETWEEN '1999-01-01' AND '2000-01-01';
+SELECT * FROM persona WHERE tipo = 'profesor' AND nif LIKE '%K';
+SELECT * FROM asignatura WHERE id_grado= 7 AND curso = 3 AND cuatrimestre = 1;
+SELECT p.apellido1, p.apellido2, p.nombre, d.nombre FROM persona p JOIN profesor pr ON p.id = pr.id_profesor JOIN departamento d ON pr.id_departamento = d.id;
+SELECT a.nombre, ce.anyo_inicio, ce.anyo_fin FROM alumno_se_matricula_asignatura asm JOIN asignatura a ON asm.id_asignatura = a.id AND asm.id_alumno = (SELECT id FROM persona  WHERE persona.nif = '26902806M') JOIN curso_escolar ce ON ce.id = asm.id_curso_escolar;
+SELECT d.nombre FROM profesor p JOIN departamento d ON d.id = p.id_departamento  AND p.id_profesor IN  (SELECT DISTINCT id_profesor FROM asignatura WHERE id_grado IN (SELECT id FROM grado WHERE nombre = 'Grado en Ingeniería Informática (Plan 2015)' AND nombre IS NOT NULL));
+SELECT p.nombre, p.apellido1, p.apellido2 FROM persona p WHERE p.id IN (SELECT DISTINCT asm.id_alumno FROM alumno_se_matricula_asignatura asm WHERE asm.id_curso_escolar =  (SELECT id FROM curso_escolar ce WHERE ce.anyo_inicio = '2018'));
+SELECT de.nombre, pe.apellido1, pe.apellido2, pe.nombre FROM departamento de LEFT JOIN profesor pr ON de.id = pr.id_departamento JOIN persona pe ON pr.id_profesor = pe.id ORDER BY de.nombre IS NULL, de.nombre ASC, pe.apellido1, pe.apellido2, pe.nombre;
+SELECT * FROM departamento dE JOIN profesor pr  ON pr.id_departamento = de.id WHERE pr.id_departamento IS NULL;
+SELECT * FROM departamento de LEFT JOIN profesor pr ON de.id = pr.id_departamento  WHERE pr.id_profesor IS NULL;
+SELECT pr.id_profesor, pe.nombre, pe.apellido1, pe.apellido2 FROM profesor pr JOIN persona pe ON pr.id_profesor = pe.id LEFT JOIN asignatura a ON a.id_profesor = pr.id_profesor WHERE a.nombre IS NULL;
+SELECT a.nombre, a.id FROM profesor pr JOIN persona pe ON pr.id_profesor = pe.id RIGHT JOIN asignatura a ON a.id_profesor = pr.id_profesor WHERE pr.id_profesor IS NULL;
+SELECT de.nombre FROM profesor pr RIGHT JOIN departamento de ON de.id = pr.id_departamento  WHERE pr.id_profesor IS NULL;
+SELECT COUNT(*) AS "Número total d'alumnes" FROM persona  WHERE tipo = 'Alumno';
+SELECT COUNT(*) AS "Número total d'alumnes" FROM persona  WHERE tipo = 'Alumno' AND fecha_nacimiento BETWEEN '1999-01-01' AND '2000-01-01';
+SELECT de.nombre, count(*) AS Numero_professors FROM  departamento de  JOIN  profesor pr ON de.id = pr.id_departamento GROUP BY de.nombre ORDER BY Numero_professors DESC;
+SELECT de.nombre, count(pr.id_profesor) AS Numero_professors FROM profesor pr RIGHT JOIN departamento de ON de.id = pr.id_departamento GROUP BY de.nombre ORDER BY Numero_professors DESC;
+SELECT gr.nombre, COUNT(a.nombre) AS Nombre_asignatures  FROM grado gr LEFT JOIN asignatura a ON gr.id = a.id_grado  GROUP BY gr.nombre ORDER BY Nombre_asignatures DESC;
+SELECT gr.nombre, COUNT(a.nombre) AS Nombre_asignatures FROM grado gr LEFT JOIN asignatura a ON gr.id = a.id_grado GROUP BY gr.nombre  HAVING Nombre_asignatures > 40;
+SELECT gr.nombre AS 'Nom del grau', a.tipo AS "Tipus d'assignatura" , COUNT(a.creditos) AS 'Total de credits' FROM grado gr JOIN asignatura a ON gr.id = a.id_grado AND a.tipo IN ('básica', 'obligatoria', 'optativa') AND gr.nombre IN ('Grado en Ingeniería Informática (Plan 2015)','Grado en Biotecnología (Plan 2015)' ) GROUP BY a.tipo, gr.nombre ORDER BY a.tipo;    
+
